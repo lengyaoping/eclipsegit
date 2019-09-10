@@ -1,0 +1,118 @@
+<script>
+     $(function (){
+     
+        $.ajax({
+           type:"post",
+           url:"getUser.action",
+           success:function (admin) { 
+           //	alert(admin);
+	            var json = eval("(" + admin + ")");
+			    var name = json.name;
+			    var pass = json.pass;
+			    var id = json.id;
+			    var account = json.account;
+			    document.getElementById("userNameId").value=id;
+			    document.getElementById("name").value=name;
+	            document.getElementById("pass").value=pass;
+	            document.getElementById("account").value=account;
+	        }, 
+	       error:function () { 
+	              
+	       } 
+	   });
+	   
+	   $("#submit").click(function(){
+          	var id = document.getElementById("userNameId").value;
+			var name = document.getElementById("name").value;
+	        var pass =document.getElementById("psd").value;
+	        var account =document.getElementById("account").value;
+          /*if(password_again!=password||password==""){
+		      alert("瀵嗙爜涓嶄竴鑷存垨瀵嗙爜涓虹┖");
+          }else if(passwd==password){
+              alert("瀵嗙爜涓嶈兘鍜屽師瀵嗙爜涓�嚧");
+          }else{*/
+             $.ajax({
+		           type:"post",
+		           url:"updateAdminInfo.action",
+		           data:{id:id,admin_name:name,account:account,password:pass},
+		           success:function (date) { 
+			            var json = eval("(" + date + ")");
+                        var result=json.success;
+                        alert(result);
+	                    window.location.href="login.jsp";
+			        }, 
+			       error:function () { 
+			            alert("修改失败");  
+			       } 
+			 });     
+          //}
+    	});
+	  });  
+     
+</script> 
+<style>
+	.editTable{
+		width:90%;
+		height:60%;
+		margin:0 auto;
+		border: 0px solid;
+	}
+	.editTable .label{
+		width:25%;
+		font-size:18px;
+		border: 0px solid;
+	}
+	.editTable input {
+		border-radius:6px;
+	}
+	input[type='password']{
+		width:60%;
+		height: 32px;
+	}
+	input[type='text']{
+		width:60%;
+		height: 32px;
+	}
+	input[type='button']{
+		width:50%;
+		height: 35px;
+		font-size:16px;
+		color:#fff;
+		background:#009688;
+		margin: 0 auto;
+	}
+</style>
+<form action="updateAdminInfo.action" method="post">
+	<input type="hidden" id="userNameId" name="id"/>
+<table class="editTable">
+	
+     <tr>
+        <td class="label">用户名</td>
+        <td>
+                 <input type="text" name="admin_name" id="name" value="" >    
+        </td>
+    </tr>
+    <tr>
+        <td class="label">账号</td>
+        <td>
+             <input  type="text" id="account" name="account">  
+        </td>
+    </tr>
+    <tr>
+        <td class="label">旧密码</td>
+        <td>
+            <input type="text" name="pass" id="pass" readonly="readonly">    
+        </td>
+    </tr>
+    <tr>
+        <td class="label">新密码</td>
+        <td>
+            <input type="password" name="password" id="psd">    
+        </td>
+    </tr>
+     <tr><td>  <label ></label></td></tr>
+    <tr><td ></td><td> <input id="submit"  type="button" value="提  交  修 改" > </td></tr>
+</table>
+	
+</form>
+

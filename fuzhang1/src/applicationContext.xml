@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>    
+<beans xmlns="http://www.springframework.org/schema/beans"    
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   
+    xmlns:p="http://www.springframework.org/schema/p"  
+    xmlns:aop="http://www.springframework.org/schema/aop"   
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:jee="http://www.springframework.org/schema/jee"  
+    xmlns:tx="http://www.springframework.org/schema/tx"  
+    xsi:schemaLocation="    
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd  
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd  
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">    
+  
+   <!-- <context:property-placeholder location="classpath:jdbc.properties" /> -->
+   <!-- 设置需要进行Spring注解扫描的类包 -->
+	<context:component-scan base-package="com.happy" />
+	
+	<!-- session设置 -->
+   <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
+   		<property name="maxInactiveIntervalInSeconds" value="3600"></property>
+   </bean>
+   
+   <!-- redis连接池 -->
+   <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig"></bean>
+   
+   <!-- redis连接工厂 -->
+   <bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+   		<property name="hostName" value="106.13.4.192"/>
+        <property name="port" value="6379"/>
+        <property name="password" value="19951226"/>
+        <property name="timeout" value="20000"/>
+        <property name="poolConfig" ref="poolConfig"></property>
+   </bean>
+   
+   <!-- <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="connectionFactory"/>
+   </bean> -->
+   
+   <!-- 自动加载构建bean
+    <context:component-scan base-package="com.happy.service" />  
+    <context:component-scan base-package="com.happy.dao" />   -->  
+  
+   <!-- 写库数据源 -->
+    <bean id="masterDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        
+       	<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/fuzhuang1?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8"></property>
+		<property name="username" value="root"></property> 
+		<property name="password" value="123"></property>  
+		 
+		 <!-- 初始化连接大小 -->
+        <property name="initialSize" value="2" />
+        <!-- 连接池最大使用连接数量 -->
+        <property name="maxActive" value="210" />
+        <!-- 连接池最小空闲 -->
+        <property name="minIdle" value="1" />
+		 
+        
+        <!-- 配置获取连接等待超时的时间 -->  
+	    <property name="maxWait" value="60000" />  
+	
+	    <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->  
+	    <property name="timeBetweenEvictionRunsMillis" value="60000" />  
+	
+	    <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->  
+	    <property name="minEvictableIdleTimeMillis" value="300000" />  
+	
+	    <property name="validationQuery" value="SELECT 'x'" />  
+	    <property name="testWhileIdle" value="true" />  
+	    <property name="testOnBorrow" value="false" />  
+	    <property name="testOnReturn" value="false" />  
+	    
+	    
+	    <!-- 超过时间限制是否回收 --> 
+		<!-- <property name="removeAbandoned" value="true" />  -->
+		<!-- 超时时间；单位为秒。180秒=3分钟 --> 
+		<!-- <property name="removeAbandonedTimeout" value="180" /> --> 
+		<!-- 关闭abanded连接时输出错误日志 --> 
+		<!-- <property name="logAbandoned" value="true" /> -->
+	    
+	
+	    <!-- 打开PSCache，并且指定每个连接上PSCache的大小（Oracle使用） -->  
+	    <!-- <property name="poolPreparedStatements" value="true" />  
+	    <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />   -->
+	
+	    <!-- 配置监控统计拦截的filters，去掉后监控界面sql无法统计 -->  
+	    <property name="filters" value="stat" />  
+
+    </bean>
+    <!-- 读库数据源 -->
+    <bean id="slaveDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		 <property name="url" value="jdbc:mysql://127.0.0.1:3306/fuzhuang1?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8"></property>
+		 <property name="username" value="root"></property> 
+		 <property name="password" value="123"></property>  
+		 
+		 <!-- 初始化连接大小 -->
+        <property name="initialSize" value="2" />
+        <!-- 连接池最大使用连接数量 -->
+        <property name="maxActive" value="210" />
+        <!-- 连接池最小空闲 -->
+        <property name="minIdle" value="1" />
+		 
+        
+        <!-- 配置获取连接等待超时的时间 -->  
+	    <property name="maxWait" value="60000" />  
+	
+	    <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->  
+	    <property name="timeBetweenEvictionRunsMillis" value="60000" />  
+	
+	    <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->  
+	    <property name="minEvictableIdleTimeMillis" value="300000" />  
+	
+	    <property name="validationQuery" value="SELECT 'x'" />  
+	    <property name="testWhileIdle" value="true" />  
+	    <property name="testOnBorrow" value="false" />  
+	    <property name="testOnReturn" value="false" />  
+	    
+	    
+	    <!-- 超过时间限制是否回收 --> 
+		<!-- <property name="removeAbandoned" value="true" />  -->
+		<!-- 超时时间；单位为秒。180秒=3分钟 --> 
+		<!-- <property name="removeAbandonedTimeout" value="180" /> --> 
+		<!-- 关闭abanded连接时输出错误日志 --> 
+		<!-- <property name="logAbandoned" value="true" /> -->
+	    
+	
+	    <!-- 打开PSCache，并且指定每个连接上PSCache的大小（Oracle使用） -->  
+	    <!-- <property name="poolPreparedStatements" value="true" />  
+	    <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />   -->
+	
+	    <!-- 配置监控统计拦截的filters，去掉后监控界面sql无法统计 -->  
+	    <property name="filters" value="stat" />  
+
+    </bean>
+    
+    <!-- 定义数据源，使用自己定义的数据源 -->
+    <bean id="dataSource" class="com.happy.myDataSource.DynamicDatasource">
+    	<!-- 设置多个数据源 -->
+    	<property name="targetDataSources">
+    		<map key-type="java.lang.String">
+    			<entry key="master" value-ref="masterDataSource"></entry>
+    			<entry key="slave" value-ref="slaveDataSource"></entry>
+    		</map>
+    	</property>
+    	<property name="defaultTargetDataSource" ref="masterDataSource"></property>
+    </bean>
+ 
+    <!-- 配置Jdbc模板 -->
+   <!--  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean> -->
+    
+     <!-- 配置Jdbc模板 -->
+    <bean id="namedParameterJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate" scope="prototype">
+    	<constructor-arg ref="dataSource"></constructor-arg>
+    </bean>
+  
+    <!-- 配置事务管理器 -->  
+    <bean id="transactionManager" scope="prototype"   
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+        <property name="dataSource" ref="dataSource" />  
+    </bean>  
+  
+    <!-- 配置事务通知属性 -->  
+    <tx:advice id="txAdvice" transaction-manager="transactionManager" >  
+        <!-- 定义事务传播属性 -->  
+        <tx:attributes>  
+            <tx:method name="insert*" propagation="REQUIRED" />
+            <tx:method name="count*" propagation="REQUIRED" />   
+            <tx:method name="update*" propagation="REQUIRED" />  
+            <tx:method name="edit*" propagation="REQUIRED" />  
+            <tx:method name="save*" propagation="REQUIRED" />  
+            <tx:method name="add*" propagation="REQUIRED" />  
+            <tx:method name="new*" propagation="REQUIRED" />  
+            <tx:method name="set*" propagation="REQUIRED" />  
+            <tx:method name="remove*" propagation="REQUIRED" />  
+            <tx:method name="delete*" propagation="REQUIRED"/>  
+            <tx:method name="change*" propagation="REQUIRED" />  
+            <tx:method name="batch*" propagation="REQUIRED" />
+            
+            <tx:method name="get*" read-only="true" />  
+            <tx:method name="find*" read-only="true" />  
+            <tx:method name="load*" read-only="true" /> 
+            <tx:method name="comb*" read-only="true" />
+            <tx:method name="query*" read-only="true" />
+            <tx:method name="list*" read-only="true" />
+            <tx:method name="export*" read-only="true" />
+            
+            <tx:method name="*" propagation="REQUIRED"  />  
+        </tx:attributes>  
+    </tx:advice>  
+    
+    <bean id="dataSourceAspect" class="com.happy.myDataSource.DataSourceAspect"></bean>
+    
+    <!-- 配置事务切面 -->  
+    <aop:config>  
+    <!-- 配置切点 -->
+        <aop:pointcut id="serviceOperation"  
+            expression="execution(* com.happy.service.*.*(..))" />  
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperation" />  
+        
+        <aop:aspect ref="dataSourceAspect" order="-9999">
+        	<aop:before method="before" pointcut-ref="serviceOperation"/>
+        </aop:aspect>
+        
+    </aop:config> 
+    
+</beans>  
